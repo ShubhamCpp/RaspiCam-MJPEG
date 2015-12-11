@@ -49,7 +49,7 @@ Then we have a file watcher on that image file and whenever the file changes, we
 We are using Web Sockets to emit and act on the events accordingly.
 
 Now, login to your pi via ssh – terminal/putty. As soon as you ssh into pi, you will be landing inside the /home/pi folder.Run
-#### Cloning this repository onto Edison
+#### Cloning this repository onto the Raspberry Pi
 
 To install git:
 
