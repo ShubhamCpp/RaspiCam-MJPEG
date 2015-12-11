@@ -8,7 +8,7 @@ A Web Streamer for the Raspberry Pi with Motion JPEG and HTTP Web Sockets
 
 # First Install Node.js on the Raspberry Pi Board :-
 
-Download Node.js source :-
+##Download Node.js source :-
 
 ### Raspberry Pi Model A, B, B+ and Compute Module
 
@@ -35,7 +35,8 @@ Based on what I have googled and understood, there is no straight forward way of
 
 After going through a few similar solutions, I kind of sort of decided that MJPEGs are the way to go when dealing with Live streaming from the Pi.
 
-MJPEG is Motion JPEG.For more details visit :- [this](https://www.youtube.com/watch?v=jculwCLhn8Y)
+MJPEG is Motion JPEG.For more details visit :- [MotionJPEG Explained](https://www.youtube.com/watch?v=jculwCLhn8Y)
+
 In this post we are not really using MJPEG from a technology standpoint, but we are using a similar principle.
 
 The idea is that we keep clicking pictures using the camera say for every 100ms and then save it to the same file. And then we keep sending the same image to the client as it changes every time.
@@ -83,7 +84,69 @@ This will give give you a list of files in the folder you are currently in.
 
 Here you can find a file `index.js`
 
+### Things to notice
 
+Line 1 – 6 : Essential requires
+
+Line 8 : Cache spawn method on child_process
+
+Line 9 : Global proc variable that we store the spawned process
+
+Line 11 : Make the stream folder as a static folder
+
+Line 14 : Default route that will dispatch the index.html
+
+Line 18 : Global sockets object. This will store all the connected sockets
+
+Line 22 : When a client connects to the server, a new socket will be created. This is store in the global variable.
+
+Line 25 : We delete the disconnected client from the global object and if there are no more clients we will stop the streaming (power saving)
+
+Line 36 : We start the streaming on start-stream event.
+
+Line 42 : We start the server
+
+Line 56 : If the capturing is already started, we will not re-init the same. And then emit the last saved image to the client
+
+Line 62 : If the capturing is not started, we will start a new child process and then spawn it with raspistill command. And then register a watch on the file which changes. And whenever the file changes we emit a URL to all the connected clients.
+
+Note : The _t param on the image is to avoid caching
+
+Argument to the raspistill command
+
+-w : width 640px
+-h : height 480px
+-o : output file ./stream/image_stream.jpg
+-t : Timeout before the camera stops capturing
+-tl – Time Limit between captures 100ms
+
+A simple Express/Socket IO server
+
+The folder stream in liveStreaming is where our image will be saved.
+
+Finally the Websocket client will see `index.html` when he accesses or tries to view the Stream.
+
+### Things to notice
+
+Line 28 : Init sockets
+
+Line 29 : When there is new image saved, liveStream event will be broadcasted. And then we will fetch the image.
+
+Line 34 : We start streaming when a user clicks on the Start button. If the video has already started by another user, we simply hide the button and show the last saved image.
+
+Line 51 : The Image tag
+
+That is it! 
+
+# Start the node server.
+
+`node index.js`
+
+And then access the port 3000 on your Raspberry pi port. My pi runs on 192.168.1.7, so my URL would be
+
+`http://192.168.1.7:3000`
+
+Click on start camera and Bam!! You should see the live feed.
 
 # Alternatives
 This is really not the best of solutions, but it kind of gets the job done.
